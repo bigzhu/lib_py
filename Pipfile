@@ -11,6 +11,9 @@ name = "pypi"
 
 [packages]
 
+configparser = "*"
+sqlalchemy = "*"
+"psycopg2" = "*"
 
 
 [requires]
