@@ -1,0 +1,4 @@
+conf
+*.swp
+.ropeproject
+__pycache__
