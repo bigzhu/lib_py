@@ -3,7 +3,9 @@
 
 import configparser
 from sqlalchemy import create_engine
-from sqlalchemy.sql import text
+# from sqlalchemy.sql import text
+from sqlalchemy.orm import sessionmaker
+engine = None
 
 
 def getDBConf():
@@ -22,6 +24,10 @@ def getEngine():
     Engine(...
     '''
 
+    global engine
+    if engine is not None:
+        return engine
+
     db_conf = getDBConf()
     connect_str = "postgresql+psycopg2://%s:%s@%s:%s/%s" % (
         db_conf['user'],
@@ -30,17 +36,30 @@ def getEngine():
         db_conf['port'],
         db_conf['db_name'],
     )
-    engine = create_engine(connect_str)
+    engine = create_engine(connect_str, echo=True)
+
     return engine
 
 
-def query(sql):
-    conn = getEngine().connect()
-    stmt = text("SELECT * FROM oauth_info")
-    print(conn.execute(stmt).fetchall())
+def getSession():
+    '''
+    >>> getSession()
+    <sqlalchemy.orm.session.Session object at ...
+    '''
+    engine = getEngine()
+    Session = sessionmaker(bind=engine)
+    return Session()
+
+
+# def query(sql):
+#    '''
+#    >>> query('123')
+#    '''
+#    conn = getEngine().connect()
+#    stmt = text("SELECT * FROM oauth_info")
+#    conn.execute(stmt).fetchone()
 
 
 if __name__ == '__main__':
-    query('123')
     import doctest
     doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)
