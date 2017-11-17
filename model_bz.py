@@ -5,7 +5,7 @@ import db_bz
 import datetime
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Text, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, Text, DateTime
 
 
 engine = db_bz.getEngine()
@@ -43,6 +43,5 @@ def addTest():
 
 
 if __name__ == '__main__':
-    OauthInfo.__table__.drop(checkfirst=True)
     import doctest
     doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)
