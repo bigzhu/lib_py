@@ -5,6 +5,7 @@ import configparser
 from sqlalchemy import create_engine
 # from sqlalchemy.sql import text
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql.expression import ClauseElement
 engine = None
 
 
@@ -51,13 +52,24 @@ def getSession():
     return Session()
 
 
-# def query(sql):
-#    '''
-#    >>> query('123')
-#    '''
-#    conn = getEngine().connect()
-#    stmt = text("SELECT * FROM oauth_info")
-#    conn.execute(stmt).fetchone()
+def getOrInsert(session, model, defaults=None, **kwargs):
+    '''
+    不存在就 insert 附加 true, 存在就取出 附加 false
+    >>> import model_bz
+    >>> session = getSession()
+    >>> oauth_info = {'out_id': '1', 'type': 'twitter', 'name': 'test', 'avatar': 'test'}
+    >>> getOrInsert(session, model_bz.OauthInfo, oauth_info, id=1)
+    (<model_bz.OauthInfo object at ...
+    '''
+    instance = session.query(model).filter_by(**kwargs).first()
+    if instance:
+        return instance, False
+    else:
+        params = dict((k, v) for k, v in kwargs.items() if not isinstance(v, ClauseElement))
+        params.update(defaults or {})
+        instance = model(**params)
+        session.add(instance)
+        return instance, True
 
 
 if __name__ == '__main__':
