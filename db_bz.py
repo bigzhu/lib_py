@@ -36,7 +36,7 @@ def getEngine():
         db_conf['port'],
         db_conf['db_name'],
     )
-    engine = create_engine(connect_str, echo=True)
+    engine = create_engine(connect_str, echo=False)
 
     return engine
 
@@ -61,5 +61,6 @@ def getSession():
 
 
 if __name__ == '__main__':
+
     import doctest
     doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)
