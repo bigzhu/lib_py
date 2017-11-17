@@ -3,12 +3,45 @@
 '''
  tornado 的公用 web api, 这里对应以前的 web_bz
 '''
+import tornado
 import tornado.websocket
 import tornado.web
 import json
 import oauth_bz
 
 from tornado_bz import BaseHandler
+
+
+class web_socket(tornado.websocket.WebSocketHandler):
+    def check_origin(self, origin):
+        return True
+
+    def open(self):
+        print("WebSocket opened")
+
+    def on_message(self, message):
+        message = json.loads(message)
+        if message['oper'] == 'register':
+            print('register')
+            self.registerSocket(message['key'])
+        self.write_message(json.dumps({'error': '0'}))
+
+    def on_close(self):
+        print("WebSocket closed")
+        the_name = 'sockets'
+        if self in self.settings[the_name][self.key]:
+            print('remove current socket')
+            self.settings[the_name][self.key].remove(self)
+
+    def registerSocket(self, key):
+        self.key = key
+        the_name = 'sockets'
+        if self.settings.get(the_name) is None:
+            self.settings[the_name] = {}
+        if self.settings[the_name].get(key) is None:
+            self.settings[the_name][key] = []
+        self.settings[the_name][key].append(self)
+        print(self.settings[the_name])
 
 
 class qq(BaseHandler, oauth_bz.QQAuth2Minix):

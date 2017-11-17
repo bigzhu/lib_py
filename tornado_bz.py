@@ -5,10 +5,36 @@ tornado 相关的公用代码
 '''
 import functools
 import json
+import os
 
 from tornado.web import RequestHandler
 
 import exception_bz
+import path_bz
+
+import configparser
+config = configparser.ConfigParser()
+config.read('conf/config.ini')
+cookie_secret = config.get('tornado', 'cookie_secret')
+
+
+def getSettings():
+    '''
+        返回 tornado 的 settings ,有一些默认值,省得每次都设置:
+            debug:  True 则开启调试模式,代码自动部署,但是有语法错误,会导致程序 cash
+            ui_modules 自定义的 ui 模块,默认会引入 tornado_ui_bz
+            login_url: 装饰器 tornado.web.authenticated 未登录时候,重定向的网址
+    >>> getSettings()
+    {'static_path': '/Users/bigzhu/lib_py/static', 'debug': True, 'cookie_secret': ...
+    '''
+    settings = {
+        'static_path': os.path.join(path_bz.getExecutingPath(), 'static'),
+        'debug': True,
+        'cookie_secret': cookie_secret,
+        'autoescape': None,  # 模板自定义转义
+        'login_url': "/login"
+    }
+    return settings
 
 
 def getURLMap(the_globals):
