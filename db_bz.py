@@ -51,6 +51,19 @@ def getSession():
     Session = sessionmaker(bind=engine)
     return Session()
 
+def createModelIns(model, defaults, **kwargs):
+    '''
+    根据传入参数, 生一个 model 的实例, 用于 update or insert
+    >>> import model_bz
+    >>> session = getSession()
+    >>> oauth_info = {'out_id': '1', 'type': 'twitter', 'name': 'test', 'avatar': 'test'}
+    >>> createModelIns(model_bz.OauthInfo, oauth_info, id=1)
+    <model_bz...
+    '''
+    params = dict((k, v) for k, v in kwargs.items() if not isinstance(v, ClauseElement))
+    params.update(defaults or {})
+    instance = model(**params)
+    return instance
 
 def getOrInsert(session, model, defaults=None, **kwargs):
     '''
@@ -65,9 +78,28 @@ def getOrInsert(session, model, defaults=None, **kwargs):
     if instance:
         return instance, False
     else:
-        params = dict((k, v) for k, v in kwargs.items() if not isinstance(v, ClauseElement))
-        params.update(defaults or {})
-        instance = model(**params)
+        instance = createModelIns(model, defaults, **kwargs)
+        session.add(instance)
+        return instance, True
+
+
+def updateOrInsert(session, model, defaults=None, **kwargs):
+    '''
+    不存在就 insert 附加 true, 存在就update 附加 false, 均返回查出的值
+    >>> import model_bz
+    >>> session = getSession()
+    >>> oauth_info = {'out_id': '1', 'type': 'twitter', 'name': 'test2', 'avatar': 'test'}
+    >>> updateOrInsert(session, model_bz.OauthInfo, oauth_info, id=1)
+    (<model_bz.OauthInfo object at ...
+    >>> session.commit()
+    '''
+    instance = session.query(model).filter_by(**kwargs).first()
+    if instance:
+        for key, value in defaults.items():
+            setattr(instance, key, value)
+        return instance, False
+    else:
+        instance = createModelIns(model, defaults, **kwargs)
         session.add(instance)
         return instance, True
 
