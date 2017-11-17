@@ -51,6 +51,7 @@ def getSession():
     Session = sessionmaker(bind=engine)
     return Session()
 
+
 def createModelIns(model, defaults, **kwargs):
     '''
     根据传入参数, 生一个 model 的实例, 用于 update or insert
@@ -60,10 +61,12 @@ def createModelIns(model, defaults, **kwargs):
     >>> createModelIns(model_bz.OauthInfo, oauth_info, id=1)
     <model_bz...
     '''
-    params = dict((k, v) for k, v in kwargs.items() if not isinstance(v, ClauseElement))
+    params = dict(
+        (k, v) for k, v in kwargs.items() if not isinstance(v, ClauseElement))
     params.update(defaults or {})
     instance = model(**params)
     return instance
+
 
 def getOrInsert(session, model, defaults=None, **kwargs):
     '''

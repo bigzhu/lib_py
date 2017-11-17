@@ -5,21 +5,41 @@ tornado 相关的公用代码
 '''
 import functools
 import json
-import tornado_web_bz
 
 from tornado.web import RequestHandler
 
-
 import exception_bz
+
+
+def getURLMap(the_globals):
+    '''
+        根据定义的tornado.web.RequestHandler,自动生成url map
+        modify by bigzhu at 15/03/06 15:53:59 在这里需要设置 lib 的 static, 用于访问 lib 的 static 文件
+        create by bigzhu at 16/02/23 18:29:49 剔除多余的lib_static
+    >>> web_class = getAllWebBzRequestHandlers()
+    >>> getURLMap(web_class)
+    [('/BaseHandler', <class 'tornado_bz.BaseHandler'>)...
+    '''
+    url_map = []
+    for i in the_globals:
+        try:
+            if issubclass(the_globals[i], RequestHandler):
+                url_map.append((r'/' + i, the_globals[i]))
+                url_map.append((r"/%s/(.*)" % i, the_globals[i]))
+        except TypeError:
+            continue
+    return url_map
 
 
 def getAllWebBzRequestHandlers():
     '''
     获取当前所有的 RequestHandlers Class Name
     >>> getAllWebBzRequestHandlers()
+    {'BaseHandler': <class 'tornado_bz.BaseHandler'>...
     '''
     all_class = {}
     import inspect
+    import tornado_web_bz  # 避免交叉 import 错误, 在这里 import
     for name, cls in inspect.getmembers(tornado_web_bz):  # 取出公用的那些 web api
         try:
             if issubclass(cls, RequestHandler):
@@ -34,6 +54,7 @@ def mustLoginJson(method):
     必须要登录 api
     create by bigzhu at 15/06/21 08:00:56
     '''
+
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
         if self.get_current_user():
@@ -41,6 +62,7 @@ def mustLoginJson(method):
         else:
             raise Exception('请登录后再操作')
         return method(self, *args, **kwargs)
+
     return wrapper
 
 
@@ -49,6 +71,7 @@ def handleErrorJson(method):
     出现错误的时候,用json返回错误信息回去
     很好用的一个装饰器
     '''
+
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
         self.set_header("Content-Type", "application/json")
@@ -57,6 +80,7 @@ def handleErrorJson(method):
         except Exception:
             print(exception_bz.getExpInfoAll())
             self.write(json.dumps({'error': exception_bz.getExpInfo()}))
+
     return wrapper
 
 
@@ -72,7 +96,6 @@ def getTName(self, name=None):
 
 
 class BaseHandler(RequestHandler):
-
     '''
     create by bigzhu at 15/01/29 22:53:07 自定义一些基础的方法
         设置 pg
