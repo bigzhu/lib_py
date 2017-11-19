@@ -10,6 +10,29 @@ import json
 import oauth_bz
 
 from tornado_bz import BaseHandler
+import tornado_bz
+import json_bz
+import db_bz
+from model_bz import OauthInfo
+
+
+class api_oauth_info(BaseHandler):
+    '''
+    取 get_oauth_info 用户信息
+    '''
+
+    @tornado_bz.handleErrorJson
+    @tornado_bz.mustLoginJson
+    def get(self):
+        self.set_header("Content-Type", "application/json")
+        user_id = self.current_user
+        session = db_bz.getSession()
+        oauth_infos = session.query(OauthInfo).filter(OauthInfo.id == int(user_id)).all()
+
+        if not oauth_infos:
+            raise Exception('没有用户' + user_id)
+        self.data['datas'] = oauth_infos[0]
+        self.write(json.dumps(self.data, cls=json_bz.ExtEncoder))
 
 
 class web_socket(tornado.websocket.WebSocketHandler):
