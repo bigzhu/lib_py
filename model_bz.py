@@ -7,14 +7,12 @@ import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Text, DateTime
 
-
 engine = db_bz.getEngine()
 session = db_bz.getSession()
 Base = declarative_base(bind=engine)
 
 
 class OauthInfo(Base):
-
     '''
     oauth_info 登录的用户信息
     >>> OauthInfo.__table__.create(checkfirst=True)

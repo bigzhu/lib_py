@@ -4,9 +4,16 @@
 import configparser
 from sqlalchemy import create_engine
 # from sqlalchemy.sql import text
+from sqlalchemy import Table, MetaData
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import ClauseElement
 engine = None
+
+
+def getReflect(table_name):
+    engine = getEngine()
+    meta = MetaData(engine)
+    return Table(table_name, meta, autoload=True)
 
 
 def getDBConf():
@@ -61,8 +68,7 @@ def createModelIns(model, defaults, **kwargs):
     >>> createModelIns(model_bz.OauthInfo, oauth_info, id=1)
     <model_bz...
     '''
-    params = dict(
-        (k, v) for k, v in kwargs.items() if not isinstance(v, ClauseElement))
+    params = dict((k, v) for k, v in kwargs.items() if not isinstance(v, ClauseElement))
     params.update(defaults or {})
     instance = model(**params)
     return instance

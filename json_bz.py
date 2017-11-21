@@ -4,7 +4,7 @@ import json
 import datetime
 import decimal
 from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.orm import class_mapper
+#from sqlalchemy.util._collections import AbstractKeyedTuple
 
 
 class ExtEncoder(json.JSONEncoder):
@@ -20,15 +20,19 @@ class ExtEncoder(json.JSONEncoder):
             return o.isoformat()
         elif isinstance(o, decimal.Decimal):
             return float(o)
-        if isinstance(o.__class__, DeclarativeMeta):
-            columns = [c.key for c in class_mapper(o.__class__).columns]
-            return dict((c, getattr(o, c)) for c in columns)
+        # ! 貌似没有用, 直接按 tuple 去解析了
+        # tuple 是基础结构类型, 在 _iterencode 里转换了, 没法在这里定义转换
+        #elif isinstance(o, AbstractKeyedTuple):
+        #    return o._asdict()
+        elif isinstance(o.__class__, DeclarativeMeta):
+            ## columns = [c.key for c in class_mapper(o.__class__).columns]
+            ## return dict((c, getattr(o, c)) for c in columns)
+            return o.__dict__
         else:
             print(o)
             print(type(o))
             raise Exception('json 无法格式化这个数据类型')
-        # Defer to the superclass method
-        return json.JSONEncoder(self, o)
+        return json.JSONEncoder.default(self, o)
 
 
 if __name__ == '__main__':

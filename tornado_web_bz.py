@@ -24,6 +24,31 @@ class api_oauth_info(BaseHandler):
     @tornado_bz.handleErrorJson
     @tornado_bz.mustLoginJson
     def get(self):
+        """
+        @apiGroup public
+        @api {get} /api_oauth_info 取 oauth 登录的用户信息 api_oauth_info
+        @apiSuccess {Number} id id
+        @apiSuccess {String} created_at 生成日期
+        @apiSuccess {String} updated_at 更新日期
+        @apiSuccess {String} out_id 外部系统的id
+        @apiSuccess {String} type 外部系统的类型
+        @apiSuccess {String} name 用户名
+        @apiSuccess {String} avatar 头像
+        @apiSuccess {String} email 邮件
+        @apiSuccess {String} location 位置
+        @apiSuccessExample {json} Success-Response:
+        {
+        "id": 5,
+        "created_at": "2017-05-24T22:43:26.799664",
+        "updated_at": "2017-05-24T22:43:26.799664",
+        "out_id": "73B15F4A285048EB28AD25B26D01207F",
+        "type": "qq",
+        "name": "bigzhu",
+        "avatar": "http://q.qlogo.cn/qqapp/101318491/73B15F4A285048EB28AD25B26D01207F/100",
+        "email": null,
+        "location": "云南昆明"
+        }
+        """
         self.set_header("Content-Type", "application/json")
         user_id = self.current_user
         session = db_bz.getSession()
@@ -31,8 +56,7 @@ class api_oauth_info(BaseHandler):
 
         if not oauth_infos:
             raise Exception('没有用户' + user_id)
-        self.data['datas'] = oauth_infos[0]
-        self.write(json.dumps(self.data, cls=json_bz.ExtEncoder))
+        self.write(json.dumps(oauth_infos[0], cls=json_bz.ExtEncoder))
 
 
 class web_socket(tornado.websocket.WebSocketHandler):
