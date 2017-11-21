@@ -3,7 +3,7 @@
 import json
 import datetime
 import decimal
-from sqlalchemy.ext.declarative import DeclarativeMeta
+import model_bz
 #from sqlalchemy.util._collections import AbstractKeyedTuple
 
 
@@ -24,10 +24,9 @@ class ExtEncoder(json.JSONEncoder):
         # tuple 是基础结构类型, 在 _iterencode 里转换了, 没法在这里定义转换
         #elif isinstance(o, AbstractKeyedTuple):
         #    return o._asdict()
-        elif isinstance(o.__class__, DeclarativeMeta):
-            ## columns = [c.key for c in class_mapper(o.__class__).columns]
-            ## return dict((c, getattr(o, c)) for c in columns)
-            return o.__dict__
+        elif isinstance(o, model_bz.Base):
+            # return o.__dict__
+            return {c.name: getattr(o, c.name, None) for c in o.__table__.columns}
         else:
             print(o)
             print(type(o))

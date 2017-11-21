@@ -52,11 +52,11 @@ class api_oauth_info(BaseHandler):
         self.set_header("Content-Type", "application/json")
         user_id = self.current_user
         session = db_bz.getSession()
-        oauth_infos = session.query(OauthInfo).filter(OauthInfo.id == int(user_id)).all()
+        oauth_info = session.query(OauthInfo).filter(OauthInfo.id == int(user_id)).one_or_none()
 
-        if not oauth_infos:
+        if oauth_info is None:
             raise Exception('没有用户' + user_id)
-        self.write(json.dumps(oauth_infos[0], cls=json_bz.ExtEncoder))
+        self.write(json.dumps(oauth_info, cls=json_bz.ExtEncoder))
 
 
 class web_socket(tornado.websocket.WebSocketHandler):
