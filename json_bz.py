@@ -26,6 +26,7 @@ class ExtEncoder(json.JSONEncoder):
         #    return o._asdict()
         elif isinstance(o, model_bz.Base):
             # return o.__dict__
+            # 不能用 __dict__ 会有一些 _sa_instance 的属性
             return {c.name: getattr(o, c.name, None) for c in o.__table__.columns}
         else:
             print(o)

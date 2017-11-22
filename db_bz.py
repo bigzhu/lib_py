@@ -44,7 +44,7 @@ def getEngine():
         db_conf['port'],
         db_conf['db_name'],
     )
-    engine = create_engine(connect_str, echo=False)
+    engine = create_engine(connect_str, echo=False, pool_pre_ping=True)
 
     return engine
 
