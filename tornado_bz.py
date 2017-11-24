@@ -140,6 +140,7 @@ class BaseHandler(RequestHandler):
     def initialize(self):
         self.template = getTName(self)
         self.data = {'error': '0'}
+        RequestHandler.initialize(self)
 
     def get_current_user(self):
         if self.get_secure_cookie('user_id'):

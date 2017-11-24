@@ -5,15 +5,8 @@ import configparser
 from sqlalchemy import create_engine
 # from sqlalchemy.sql import text
 from sqlalchemy import Table, MetaData
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.sql.expression import ClauseElement
-engine = None
-
-
-def getReflect(table_name):
-    engine = getEngine()
-    meta = MetaData(engine)
-    return Table(table_name, meta, autoload=True)
 
 
 def getDBConf():
@@ -32,10 +25,6 @@ def getEngine():
     Engine(...
     '''
 
-    global engine
-    if engine is not None:
-        return engine
-
     db_conf = getDBConf()
     connect_str = "postgresql+psycopg2://%s:%s@%s:%s/%s" % (
         db_conf['user'],
@@ -44,22 +33,16 @@ def getEngine():
         db_conf['port'],
         db_conf['db_name'],
     )
-    engine = create_engine(connect_str, echo=False, pool_pre_ping=True)
-
-    return engine
+    return create_engine(connect_str, echo=False)
 
 
-def getSession():
-    '''
-    >>> getSession()
-    <sqlalchemy.orm.session.Session object at ...
-    '''
-    engine = getEngine()
-    Session = sessionmaker(bind=engine)
-    return Session()
+engine = getEngine()
+session = scoped_session(sessionmaker(bind=engine))
 
-## 全局的session, 不 close ,用于 get 操作
-session_for_get = getSession()
+
+def getReflect(table_name):
+    meta = MetaData(engine)
+    return Table(table_name, meta, autoload=True)
 
 
 def createModelIns(model, defaults, **kwargs):
@@ -71,7 +54,8 @@ def createModelIns(model, defaults, **kwargs):
     >>> createModelIns(model_bz.OauthInfo, oauth_info, id=1)
     <model_bz...
     '''
-    params = dict((k, v) for k, v in kwargs.items() if not isinstance(v, ClauseElement))
+    params = dict((k, v) for k, v in kwargs.items()
+                  if not isinstance(v, ClauseElement))
     params.update(defaults or {})
     instance = model(**params)
     return instance
