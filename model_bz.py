@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import db_bz
+from db_bz import engine, session
 import datetime
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Text, DateTime
 
-engine = db_bz.getEngine()
-session = db_bz.getSession()
 Base = declarative_base(bind=engine)
 
 
@@ -20,7 +18,8 @@ class OauthInfo(Base):
     __tablename__ = 'oauth_info'
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)  # 建立时间
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow)  # update 时间
+    updated_at = Column(
+        DateTime, default=datetime.datetime.utcnow)  # update 时间
 
     out_id = Column(Text, nullable=False)  # 外部的id
     type = Column(Text, nullable=False)  # oauth 类型, twitter github
