@@ -58,6 +58,9 @@ def getSession():
     Session = sessionmaker(bind=engine)
     return Session()
 
+## 全局的session, 不 close ,用于 get 操作
+session_for_get = getSession()
+
 
 def createModelIns(model, defaults, **kwargs):
     '''

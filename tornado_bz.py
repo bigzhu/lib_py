@@ -142,7 +142,8 @@ class BaseHandler(RequestHandler):
         self.data = {'error': '0'}
 
     def get_current_user(self):
-        return str(self.get_secure_cookie('user_id'), 'utf-8')
+        if self.get_secure_cookie('user_id'):
+            return str(self.get_secure_cookie('user_id'), 'utf-8')
 
 
 if __name__ == '__main__':

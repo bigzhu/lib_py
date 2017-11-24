@@ -16,6 +16,23 @@ import db_bz
 from model_bz import OauthInfo
 
 
+class api_login(BaseHandler):
+    '''
+    登录后台的方法
+    modify by bigzhu at 16/03/07 22:52:33 改为单纯的登录
+    '''
+
+    @tornado_bz.handleErrorJson
+    def post(self):
+        self.set_header("Content-Type", "application/json")
+        login_info = json.loads(self.request.body)
+        user_name = login_info.get("user_name")
+        password = login_info.get("password")
+        user_info = user_bz.login(self.pg, user_name, password)
+        self.set_secure_cookie("user_id", str(user_info.id))
+        self.write(json.dumps({'error': '0'}))
+
+
 class api_oauth_info(BaseHandler):
     '''
     取 get_oauth_info 用户信息
@@ -52,7 +69,8 @@ class api_oauth_info(BaseHandler):
         self.set_header("Content-Type", "application/json")
         user_id = self.current_user
         session = db_bz.getSession()
-        oauth_info = session.query(OauthInfo).filter(OauthInfo.id == int(user_id)).one_or_none()
+        oauth_info = session.query(OauthInfo).filter(
+            OauthInfo.id == int(user_id)).one_or_none()
 
         if oauth_info is None:
             raise Exception('没有用户' + user_id)

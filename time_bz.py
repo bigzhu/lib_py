@@ -9,7 +9,7 @@ def unicodeToDateTIme(string):
     '''
     create by bigzhu at 15/07/22 16:39:46 转化 2015-07-22T08:14:10Z 格式的数据为日期
     '''
-    return datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%SZ')
+    return datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%S')
 
 
 def datetimeToTimestamp(date_time):
