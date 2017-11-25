@@ -4,12 +4,27 @@ import time
 import calendar
 import datetime
 from dateutil import parser
+from datetime import timedelta
+
+
+def datetimeTOJson(d):
+    '''
+    如果是有时区信息的, 且是UTC 就直接转
+    没有的, 当做中国时区 -8 转 utc
+    '''
+    if d.tzname() == 'UTC':
+        return d.isoformat().replace('+00:00', 'Z')
+    else:
+        d -= timedelta(hours=8)
+        return d.isoformat() + 'Z'
 
 
 def jsonToDatetime(string):
     '''
     json to datetime, 带 Z 的自动转为 utc
-    >>> jsonToDatetime('2017-11-25T12:20:49.896Z')
+    >>> d = jsonToDatetime('2017-07-30T14:54:57.987443Z')
+    >>> datetimeTOJson(d)
+    '2017-07-30T14:54:57.987443Z'
     '''
     return parser.parse(string)
 

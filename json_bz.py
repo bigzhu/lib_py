@@ -4,6 +4,7 @@ import json
 import datetime
 import decimal
 import model_bz
+import time_bz
 
 
 def encodeJson(o, default):
@@ -12,7 +13,8 @@ def encodeJson(o, default):
     '''
     if isinstance(o, datetime.datetime) or isinstance(
             o, datetime.date) or isinstance(o, datetime.time):
-        return o.utcnow().isoformat() + 'Z'
+        # 统一用
+        return time_bz.datetimeTOJson(o)
     elif isinstance(o, decimal.Decimal):
         return float(o)
     # ! 貌似没有用, 直接按 tuple 去解析了
