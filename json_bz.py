@@ -12,7 +12,7 @@ def encodeJson(o, default):
     '''
     if isinstance(o, datetime.datetime) or isinstance(
             o, datetime.date) or isinstance(o, datetime.time):
-        return o.isoformat()
+        return o.utcnow().isoformat() + 'Z'
     elif isinstance(o, decimal.Decimal):
         return float(o)
     # ! 貌似没有用, 直接按 tuple 去解析了

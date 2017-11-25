@@ -3,6 +3,15 @@
 import time
 import calendar
 import datetime
+from dateutil import parser
+
+
+def jsonToDatetime(string):
+    '''
+    json to datetime, 带 Z 的自动转为 utc
+    >>> jsonToDatetime('2017-11-25T12:20:49.896Z')
+    '''
+    return parser.parse(string)
 
 
 def unicodeToDateTIme(string):
@@ -116,7 +125,7 @@ def getYearMonthDay():
 def getNowTimeStamp():
     return int(datetimeToTimestamp(datetime.datetime.now()))
 
+
 if __name__ == '__main__':
-    pass
-    # print str(getNowTimeStamp())
-    # print str(getNowTimeStamp())[-4:]
+    import doctest
+    doctest.testmod(verbose=False, optionflags=doctest.ELLIPSIS)
