@@ -60,7 +60,7 @@ def createModelIns(model, defaults, **kwargs):
     return instance
 
 
-def getOrInsert(session, model, defaults=None, **kwargs):
+def getOrInsert(model, defaults=None, **kwargs):
     '''
     不存在就 insert 附加 true, 存在就取出 附加 false
     >>> import model_bz
@@ -77,7 +77,7 @@ def getOrInsert(session, model, defaults=None, **kwargs):
         return instance, True
 
 
-def updateOrInsert(session, model, defaults=None, **kwargs):
+def updateOrInsert(model, defaults=None, **kwargs):
     '''
     不存在就 insert 附加 true, 存在就update 附加 false, 均返回查出的值
     >>> import model_bz

@@ -12,9 +12,6 @@ import oauth_bz
 from tornado_bz import BaseHandler
 import tornado_bz
 import json_bz
-import db_bz
-from db_bz import session
-from model_bz import OauthInfo
 
 
 class api_login(BaseHandler):
@@ -69,11 +66,7 @@ class api_oauth_info(BaseHandler):
         """
         self.set_header("Content-Type", "application/json")
         user_id = self.current_user
-        oauth_info = session.query(OauthInfo).filter(
-            OauthInfo.id == int(user_id)).one_or_none()
-
-        if oauth_info is None:
-            raise Exception('没有用户' + user_id)
+        oauth_info = oauth_bz.getOauthInfo(user_id)
         self.write(json.dumps(oauth_info, cls=json_bz.ExtEncoder))
 
 

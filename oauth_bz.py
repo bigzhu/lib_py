@@ -23,9 +23,49 @@ from tornado import httpclient
 from tornado.httputil import url_concat
 from tornado import gen
 import re
+from model_bz import OauthInfo
 
-import model_bz
 import db_bz
+from db_bz import session
+
+
+def getCount():
+    return session.query(OauthInfo).count()
+
+
+def getOauthInfo(user_id):
+    '''
+    取出某人的 oauth 信息
+    @apiGroup Oauth
+    @api {get} /api_oauth_info 取 oauth 登录的用户信息 api_oauth_info
+    @apiSuccess {Number} id id
+    @apiSuccess {String} created_at 生成日期
+    @apiSuccess {String} updated_at 更新日期
+    @apiSuccess {String} out_id 外部系统的id
+    @apiSuccess {String} type 外部系统的类型
+    @apiSuccess {String} name 用户名
+    @apiSuccess {String} avatar 头像
+    @apiSuccess {String} email 邮件
+    @apiSuccess {String} location 位置
+    @apiSuccessExample {json} Success-Response:
+    {
+    "id": 5,
+    "created_at": "2017-05-24T22:43:26.799664",
+    "updated_at": "2017-05-24T22:43:26.799664",
+    "out_id": "73B15F4A285048EB28AD25B26D01207F",
+    "type": "qq",
+    "name": "bigzhu",
+    "avatar": "http://q.qlogo.cn/qqapp/101318491/73B15F4A285048EB28AD25B26D01207F/100",
+    "email": null,
+    "location": "云南昆明"
+    }
+    '''
+    oauth_info = session.query(OauthInfo).filter(
+        OauthInfo.id == int(user_id)).one_or_none()
+
+    if oauth_info is None:
+        raise Exception('没有用户' + user_id)
+    return oauth_info
 
 
 def saveAndGetOauth(oauth_info):
@@ -109,7 +149,8 @@ class QQAuth2Minix(OAuth2Mixin):
             logging.warning('QQ get openId error: %s' % str(response))
             callback(None)
             return
-        res_json = re.match(r".*?\((.*?)\)", escape.native_str(response.body)).group(1)
+        res_json = re.match(
+            r".*?\((.*?)\)", escape.native_str(response.body)).group(1)
         args = escape.json_decode(res_json)
         session.update(args)
         callback(session)
@@ -149,7 +190,8 @@ class QQAuth2Minix(OAuth2Mixin):
         """
         return httpclient.AsyncHTTPClient(
             force_instance=True,
-            defaults=dict(user_agent="Mozilla/5.0 (X11;U;Linux i686;en-US;rv:1.9.0.3) Geco/2008092416 Firefox/3.0.3")
+            defaults=dict(
+                user_agent="Mozilla/5.0 (X11;U;Linux i686;en-US;rv:1.9.0.3) Geco/2008092416 Firefox/3.0.3")
         )
 
 
@@ -206,7 +248,8 @@ class DoubanOAuth2Mixin(DoubanMixin):
 
     def _on_access_token(self, future, response):
         if response.error:
-            future.set_exception(AuthError('Douban Auth Error: %s' % str(response)))
+            future.set_exception(
+                AuthError('Douban Auth Error: %s' % str(response)))
             return
         args = escape.json_decode(response.body)
         # future.set_result(args)
@@ -223,7 +266,8 @@ class DoubanOAuth2Mixin(DoubanMixin):
     def get_user_info(self, access_token, callback):
         url = 'https://api.douban.com/v2/user/~me'
         http = tornado.httpclient.AsyncHTTPClient()
-        req = tornado.httpclient.HTTPRequest(url, headers={"Authorization": "Bearer " + access_token})
+        req = tornado.httpclient.HTTPRequest(
+            url, headers={"Authorization": "Bearer " + access_token})
         http.fetch(req, functools.partial(self._on_get_user_request, callback))
 
     def _on_get_user_request(self, future, response):
