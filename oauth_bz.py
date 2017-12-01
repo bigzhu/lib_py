@@ -33,7 +33,7 @@ def getCount():
     return session.query(OauthInfo).count()
 
 
-def getOauthInfo(user_id):
+def getOauthInfo(user_id, name=None, type=None):
     '''
     取出某人的 oauth 信息
     @apiGroup Oauth
@@ -60,11 +60,19 @@ def getOauthInfo(user_id):
     "location": "云南昆明"
     }
     '''
-    oauth_info = session.query(OauthInfo).filter(
-        OauthInfo.id == int(user_id)).one_or_none()
+
+    if user_id:
+        oauth_info = session.query(OauthInfo).filter(
+            OauthInfo.id == int(user_id)).one_or_none()
+    elif name and type:
+        oauth_info = session.query(OauthInfo).filter(
+            OauthInfo.name == name,
+            OauthInfo.type == type).one_or_none()
+    else:
+        raise Exception('请输入正确参数')
 
     if oauth_info is None:
-        raise Exception('没有用户' + user_id)
+        raise Exception('没有用户 %s %s %s' % (user_id, name, type))
     return oauth_info
 
 

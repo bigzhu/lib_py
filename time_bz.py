@@ -4,7 +4,6 @@ import time
 import calendar
 import datetime
 from dateutil import parser
-from datetime import timedelta
 
 
 def datetimeTOJson(d):
@@ -15,7 +14,9 @@ def datetimeTOJson(d):
     if d.tzname() == 'UTC':
         return d.isoformat().replace('+00:00', 'Z')
     else:
-        d -= timedelta(hours=8)
+        # 数据库一律存 UTC 时间, 这里不再减8
+        # d -= timedelta(hours=8)
+        # return '2017-11-20T16:12:40.978577Z'
         return d.isoformat() + 'Z'
 
 
@@ -26,7 +27,10 @@ def jsonToDatetime(string):
     >>> datetimeTOJson(d)
     '2017-07-30T14:54:57.987443Z'
     '''
-    return parser.parse(string)
+    d = parser.parse(string)
+    # if d.tzname() == 'UTC':
+    #     d += timedelta(hours=8)
+    return d
 
 
 def unicodeToDateTIme(string):
